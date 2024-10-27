@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "shum"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.9.20"
+fastapi = {extras = ["all"], version = "^0.115.3"}
+sqlalchemy = "^2.0.36"
+alembic = "^1.13.3"
+aiosqlite = "^0.20.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
