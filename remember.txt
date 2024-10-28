@@ -1,0 +1,4 @@
+result.scalars().all() or result.all() => result.mappings().all()
+
+class Config:
+    orm_mode = True -> model_config = ConfigDict(from_attributes=True)
