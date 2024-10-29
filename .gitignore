@@ -163,3 +163,4 @@ cython_debug/
 
 # project
 *.db
+config.py

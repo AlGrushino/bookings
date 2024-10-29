@@ -1,4 +1,9 @@
+uvicorn app.main:app
+
 result.scalars().all() or result.all() => result.mappings().all()
 
 class Config:
     orm_mode = True -> model_config = ConfigDict(from_attributes=True)
+
+
+на проекте обязательно смотреть конфиг и .env в курсе, там много классного

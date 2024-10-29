@@ -1,14 +1,16 @@
-from fastapi import FastAPI, Query, Depends
 from typing import Optional
 from datetime import date
 from pydantic import BaseModel
+from fastapi import FastAPI, Query, Depends
 
 from app.bookings.router import router as router_bookings
+from app.users.router import router as router_users
 
 
 app = FastAPI()
 
 
+app.include_router(router_users)
 app.include_router(router_bookings)
 
 
@@ -35,9 +37,7 @@ class SHotel(BaseModel):
 
 
 @app.get("/hotels")
-def get_hotels(
-    seach_args: HotelsSearchArgs = Depends()
-):
+def get_hotels(seach_args: HotelsSearchArgs = Depends()):
     return seach_args
 
 

@@ -11,8 +11,14 @@ fastapi = {extras = ["all"], version = "^0.115.3"}
 sqlalchemy = "^2.0.36"
 alembic = "^1.13.3"
 aiosqlite = "^0.20.0"
+black = "^24.10.0"
+passlib = "^1.7.4"
+python-jose = "^3.3.0"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 79
