@@ -39,14 +39,3 @@ class SHotel(BaseModel):
 @app.get("/hotels")
 def get_hotels(seach_args: HotelsSearchArgs = Depends()):
     return seach_args
-
-
-class SBooking(BaseModel):
-    room_id: int
-    date_from: date
-    date_to: date
-
-
-@app.post("/bookings")
-def add_booking(booking: SBooking):
-    pass
