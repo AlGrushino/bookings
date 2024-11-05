@@ -1,12 +1,12 @@
 from datetime import date
 
-from sqlalchemy import select, _and, func
+from sqlalchemy import select, and_, func
 
 from app.bookings.models import Bookings
 from app.hotels.rooms.models import Rooms
 from app.hotels.models import Hotels
 from app.dao.base import BaseDAO
-from app.database import async_session_maker
+from app.database import async_session_maker, engine
 
 
 class HotelDAO(BaseDAO):
@@ -21,9 +21,12 @@ class HotelDAO(BaseDAO):
     ):
         async with async_session_maker() as session:
             booked_rooms = (
-                select(Bookings.id)
+                select(
+                    Bookings.id,
+                    Bookings.room_id,
+                )
                 .where(
-                    _and(
+                    and_(
                         Bookings.date_from <= date_to,
                         Bookings.date_to >= date_from,
                     )
@@ -34,7 +37,7 @@ class HotelDAO(BaseDAO):
             get_rooms_left = (
                 select(
                     Rooms.hotel_id,
-                    Hotels.hotel_id,
+                    Hotels.id,  # Hotel.id
                     Hotels.location,
                     Rooms.services,
                     Rooms.quantity,
@@ -46,7 +49,7 @@ class HotelDAO(BaseDAO):
                 .select_from(Rooms)
                 .join(
                     booked_rooms,
-                    booked_rooms.c.room_id == Rooms.room_id,
+                    booked_rooms.c.room_id == Rooms.id,
                     isouter=True,
                 )
                 .join(Hotels, Hotels.id == Rooms.hotel_id, isouter=True)
@@ -56,7 +59,18 @@ class HotelDAO(BaseDAO):
                     Rooms.quantity,
                     Rooms.image_id,
                 )
-                .having(Rooms.quantity - func.count(booked_rooms.c.room_id))
+                .having(
+                    and_(
+                        Hotels.location.contains(location),
+                        Rooms.quantity - func.count(booked_rooms.c.room_id)
+                    )
+                    )
+            )
+
+            print(
+                get_rooms_left.compile(
+                    engine, compile_kwargs={"literal_binds": True}
+                )
             )
 
             rooms_left = await session.execute(get_rooms_left)
