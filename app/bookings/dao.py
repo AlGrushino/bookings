@@ -13,7 +13,11 @@ class BookingDAO(BaseDAO):
 
     @classmethod
     async def add(
-        cls, user_id: int, room_id: int, date_from: date, date_to: date
+        cls,
+        user_id: int,
+        room_id: int,
+        date_from: date,
+        date_to: date,
     ):
         async with async_session_maker() as session:
             booked_rooms = (

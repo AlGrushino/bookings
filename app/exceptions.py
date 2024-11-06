@@ -41,3 +41,8 @@ class UserIsNotPresentException(BookingException):
 class RoomCannotBeBooked(BookingException):
     status_code = status.HTTP_409_CONFLICT
     detail = "Не осталось свободных номеров"
+
+
+class HotelCannotBeAdded(BookingException):
+    status_code = status.HTTP_409_CONFLICT
+    detail = "Отель не может быть добавлен"

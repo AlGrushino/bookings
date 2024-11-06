@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import select, and_, func
+from sqlalchemy import select, and_, func, insert, delete
 
 from app.bookings.models import Bookings
 from app.hotels.rooms.models import Rooms
@@ -76,3 +76,43 @@ class HotelDAO(BaseDAO):
 
             rooms_left = await session.execute(get_rooms_left)
             return rooms_left.mappings().all()
+
+    # проверить группировки в find_all
+
+    # в add добавить проверку на то, что отель ещё не существует по адресу
+    # написать, что add ретёрнит
+    @classmethod
+    async def add(
+        cls,
+        name: str,
+        location: str,
+        services: str,
+        rooms_quantity: int,
+        image_id: int,
+    ):
+        async with async_session_maker() as session:
+            add_hotel = (
+                insert(Hotels)
+                .values(
+                    name=name,
+                    location=location,
+                    services=services,
+                    rooms_quantity=rooms_quantity,
+                    image_id=image_id,
+                )
+                .returning(Hotels)
+            )
+
+            new_hotel = await session.execute(add_hotel)
+            await session.commit()
+            return new_hotel.scalar()
+
+    @classmethod
+    async def delete_hotel(
+        cls,
+        hotel_id: int,
+    ) -> None:
+        async with async_session_maker() as session:
+            delete_hotel = delete(Hotels).where(Hotels.c.id == hotel_id)
+        await session.execute(delete_hotel)
+        await session.commit()
