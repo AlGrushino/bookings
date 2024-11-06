@@ -1,4 +1,3 @@
-from base64 import b64encode
 from datetime import date
 
 from fastapi import APIRouter
@@ -19,6 +18,7 @@ async def get_hotels(
     date_from: date,
     date_to: date,
 ) -> list[SHotelsGetAll]:
+
     return await HotelDAO.find_all(
         location=location,
         date_from=date_from,

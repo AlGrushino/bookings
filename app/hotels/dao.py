@@ -38,6 +38,7 @@ class HotelDAO(BaseDAO):
                 select(
                     Rooms.hotel_id,
                     Hotels.id,  # Hotel.id
+                    Hotels.name,
                     Hotels.location,
                     Rooms.services,
                     Rooms.quantity,
@@ -62,16 +63,16 @@ class HotelDAO(BaseDAO):
                 .having(
                     and_(
                         Hotels.location.contains(location),
-                        Rooms.quantity - func.count(booked_rooms.c.room_id)
+                        Rooms.quantity - func.count(booked_rooms.c.room_id),
                     )
-                    )
-            )
-
-            print(
-                get_rooms_left.compile(
-                    engine, compile_kwargs={"literal_binds": True}
                 )
             )
+
+            # print(
+            #     get_rooms_left.compile(
+            #         engine, compile_kwargs={"literal_binds": True}
+            #     )
+            # )
 
             rooms_left = await session.execute(get_rooms_left)
             return rooms_left.mappings().all()
