@@ -31,6 +31,7 @@ async def get_hotels(
 
 
 # добавить, что пользователь должен быть авторизован и быть админом
+# добавить @router.post("/add/{name}")
 @router.post("/add")
 async def add_hotel(
     name: str,
@@ -52,4 +53,12 @@ async def add_hotel(
         raise HotelCannotBeAdded
 
 
-@router.delete("/delete")
+# пользователь должен быть авторизован и админом
+@router.delete("/delete/{hotel_id}")
+async def delete_hotel(
+    hotel_id: int,
+) -> None:
+
+    await HotelDAO.delete_hotel(
+        hotel_id=hotel_id,
+    )

@@ -1,8 +1,9 @@
 from datetime import date
 
-from sqlalchemy import select, and_, func, insert, delete
+from sqlalchemy import select, and_, func, insert, delete, update
 
 from app.bookings.models import Bookings
+from app.exceptions import HotelDoesNotExist
 from app.hotels.rooms.models import Rooms
 from app.hotels.models import Hotels
 from app.dao.base import BaseDAO
@@ -107,12 +108,32 @@ class HotelDAO(BaseDAO):
             await session.commit()
             return new_hotel.scalar()
 
+    # проверять, что такой отель вообще сущетсвует
     @classmethod
     async def delete_hotel(
         cls,
         hotel_id: int,
     ) -> None:
+
         async with async_session_maker() as session:
-            delete_hotel = delete(Hotels).where(Hotels.c.id == hotel_id)
+            delete_hotel = delete(Hotels).where(Hotels.id == hotel_id)
         await session.execute(delete_hotel)
         await session.commit()
+
+    @classmethod
+    async def update_hotel(
+        cls,
+        hotel_id: int,
+        **kwargs,
+    ) -> None:
+
+        hotel = cls.find_by_id(hotel_id)
+
+        if hotel:
+            for key, value in kwargs.items():
+                if hasattr(hotel, key):
+                    async with async_session_maker() as session:
+                        setattr(hotel, key, value)
+                    session.commit()
+        else:
+            raise HotelDoesNotExist
