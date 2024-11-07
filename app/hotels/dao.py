@@ -127,13 +127,17 @@ class HotelDAO(BaseDAO):
         **kwargs,
     ) -> None:
 
-        hotel = cls.find_by_id(hotel_id)
+        hotel = await cls.find_by_id(hotel_id)
 
         if hotel:
             for key, value in kwargs.items():
                 if hasattr(hotel, key):
+                    print(f"Has attr: {key}")
                     async with async_session_maker() as session:
                         setattr(hotel, key, value)
+                        print("Attr setted")
                     session.commit()
+                    print("Session commited")
         else:
+            print("raise error")
             raise HotelDoesNotExist

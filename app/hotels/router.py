@@ -62,3 +62,16 @@ async def delete_hotel(
     await HotelDAO.delete_hotel(
         hotel_id=hotel_id,
     )
+
+
+# пользователь должен быть авторизован и админом
+@router.patch("/update/{hotel_id}")
+async def update_hotel(
+    hotel_id: int,
+    **kwargs,
+) -> None:
+
+    await HotelDAO.update_hotel(
+        hotel_id=hotel_id,
+        kwargs=kwargs,
+    )
