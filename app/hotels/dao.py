@@ -6,6 +6,7 @@ from app.bookings.models import Bookings
 from app.exceptions import HotelDoesNotExist
 from app.hotels.rooms.models import Rooms
 from app.hotels.models import Hotels
+from app.hotels.schemas import SListString
 from app.dao.base import BaseDAO
 from app.database import async_session_maker, engine
 
@@ -83,11 +84,11 @@ class HotelDAO(BaseDAO):
     # в add добавить проверку на то, что отель ещё не существует по адресу
     # написать, что add ретёрнит
     @classmethod
-    async def add(
+    async def add_hotel(
         cls,
         name: str,
         location: str,
-        services: str,
+        services: SListString,
         rooms_quantity: int,
         image_id: int,
     ):
@@ -97,7 +98,7 @@ class HotelDAO(BaseDAO):
                 .values(
                     name=name,
                     location=location,
-                    services=services,
+                    services=services.items,
                     rooms_quantity=rooms_quantity,
                     image_id=image_id,
                 )
@@ -124,20 +125,29 @@ class HotelDAO(BaseDAO):
     async def update_hotel(
         cls,
         hotel_id: int,
-        **kwargs,
+        name: str,
+        location: str,
+        services: SListString,
+        rooms_quantity: int,
+        image_id: int,
     ) -> None:
 
         hotel = await cls.find_by_id(hotel_id)
-
         if hotel:
-            for key, value in kwargs.items():
-                if hasattr(hotel, key):
-                    print(f"Has attr: {key}")
-                    async with async_session_maker() as session:
-                        setattr(hotel, key, value)
-                        print("Attr setted")
-                    session.commit()
-                    print("Session commited")
+            async with async_session_maker() as session:
+                updated_info = (
+                    update(Hotels)
+                    .where(Hotels.id == hotel_id)
+                    .values(
+                        name=name,
+                        location=location,
+                        services=services.items,
+                        rooms_quantity=rooms_quantity,
+                        image_id=image_id,
+                    )
+                )
+
+                await session.execute(updated_info)
+                await session.commit()
         else:
-            print("raise error")
             raise HotelDoesNotExist

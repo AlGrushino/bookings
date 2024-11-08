@@ -2,7 +2,7 @@ from datetime import date
 
 from fastapi import APIRouter
 
-from app.hotels.schemas import SHotelsGetAll
+from app.hotels.schemas import SHotelsGetAll, SListString
 from app.hotels.dao import HotelDAO
 from app.exceptions import HotelCannotBeAdded
 
@@ -36,12 +36,12 @@ async def get_hotels(
 async def add_hotel(
     name: str,
     location: str,
-    services: str,
+    services: SListString,
     rooms_quantity: int,
     image_id: int,
 ) -> None:
 
-    hotel = await HotelDAO.add(
+    hotel = await HotelDAO.add_hotel(
         name=name,
         location=location,
         services=services,
@@ -65,13 +65,21 @@ async def delete_hotel(
 
 
 # пользователь должен быть авторизован и админом
-@router.patch("/update/{hotel_id}")
+@router.put("/update/{hotel_id}")
 async def update_hotel(
     hotel_id: int,
-    **kwargs,
+    name: str,
+    location: str,
+    services: SListString,
+    rooms_quantity: int,
+    image_id: int,
 ) -> None:
 
     await HotelDAO.update_hotel(
         hotel_id=hotel_id,
-        kwargs=kwargs,
+        name=name,
+        location=location,
+        services=services,
+        rooms_quantity=rooms_quantity,
+        image_id=image_id,
     )
