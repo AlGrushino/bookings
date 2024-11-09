@@ -1,12 +1,12 @@
 from datetime import date
 from typing import Optional
 
-from app.exceptions import HotelCannotBeAdded
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
+
+from app.exceptions import HotelCannotBeAdded, HotelDoesNotExist
 from app.hotels.dao import HotelDAO
 from app.hotels.schemas import SHotelsGetAll, SListString
-
-from fastapi import APIRouter
-
 
 router = APIRouter(
     prefix="/hotels",
@@ -96,7 +96,7 @@ async def alternative_update_hotel(
     image_id: Optional[int] = None,
 ) -> None:
 
-    await HotelDAO.alternative_update_hotel(
+    hotel = await HotelDAO.alternative_update_hotel(
         hotel_id=hotel_id,
         name=name,
         location=location,
@@ -104,3 +104,13 @@ async def alternative_update_hotel(
         rooms_quantity=rooms_quantity,
         image_id=image_id,
     )
+
+    if hotel:
+        return JSONResponse(
+            status_code=200,
+            content={
+                "status_code": 200,
+                "message": "Информация об отеле успешно изменена",
+            },
+        )
+    raise HotelDoesNotExist

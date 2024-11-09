@@ -1,6 +1,7 @@
 from datetime import date
+
 from sqlalchemy import Computed, Date, ForeignKey
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
 

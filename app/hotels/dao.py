@@ -1,16 +1,15 @@
 from datetime import date
 from typing import Optional
 
-from sqlalchemy import select, and_, func, insert, delete, update
-from fastapi.responses import JSONResponse
+from sqlalchemy import and_, delete, func, insert, select, update
 
 from app.bookings.models import Bookings
-from app.exceptions import HotelDoesNotExist
-from app.hotels.rooms.models import Rooms
-from app.hotels.models import Hotels
-from app.hotels.schemas import SListString
 from app.dao.base import BaseDAO
 from app.database import async_session_maker, engine
+from app.exceptions import HotelDoesNotExist
+from app.hotels.models import Hotels
+from app.hotels.rooms.models import Rooms
+from app.hotels.schemas import SListString
 
 
 class HotelDAO(BaseDAO):
@@ -153,6 +152,8 @@ class HotelDAO(BaseDAO):
         else:
             raise HotelDoesNotExist
 
+    # убрать обработку ошибок в роутер, возвращать скаляр
+
     @classmethod
     async def alternative_update_hotel(
         cls,
@@ -162,10 +163,13 @@ class HotelDAO(BaseDAO):
         services: Optional[SListString] = None,
         rooms_quantity: Optional[int] = None,
         image_id: Optional[int] = None,
-    ) -> JSONResponse:
+    ) -> Optional[int]:
+        flag_changes: int = 0
 
         async with async_session_maker() as session:
-            hotel = await cls.find_by_id(hotel_id)
+            get_hotel = select(Hotels).where(Hotels.id == hotel_id)
+            hotel = await session.execute(get_hotel)
+            hotel = hotel.scalar()
 
             if hotel:
                 if name is not None:
@@ -175,6 +179,7 @@ class HotelDAO(BaseDAO):
                         .values(name=name)
                     )
                     await session.execute(update_name)
+                    flag_changes = 1
 
                 if location is not None:
                     update_location = (
@@ -183,6 +188,7 @@ class HotelDAO(BaseDAO):
                         .values(location=location)
                     )
                     await session.execute(update_location)
+                    flag_changes = 1
 
                 if services is not None:
                     update_services = (
@@ -191,6 +197,7 @@ class HotelDAO(BaseDAO):
                         .values(services=services.items)
                     )
                     await session.execute(update_services)
+                    flag_changes = 1
 
                 if rooms_quantity is not None:
                     update_rooms_quantity = (
@@ -199,6 +206,7 @@ class HotelDAO(BaseDAO):
                         .values(rooms_quantity=rooms_quantity)
                     )
                     await session.execute(update_rooms_quantity)
+                    flag_changes = 1
 
                 if image_id is not None:
                     update_image_id = (
@@ -207,21 +215,11 @@ class HotelDAO(BaseDAO):
                         .values(image_id=image_id)
                     )
                     await session.execute(update_image_id)
+                    flag_changes = 1
 
                 await session.commit()
-                return JSONResponse(
-                    status_code=200,
-                    content={
-                        "status_code": 200,
-                        "message": "success",
-                    },
-                )
-
-            else:
-                raise HotelDoesNotExist
+                if flag_changes:
+                    return hotel
 
 
-# не возвращается message, если изменения проходят успешно
-# message должен возврашать не дао, а роутер
-# перемести эту логику туда
 # поменять роутер на патч
