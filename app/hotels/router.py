@@ -1,11 +1,11 @@
 from datetime import date
 from typing import Optional
 
-from fastapi import APIRouter
-
-from app.hotels.schemas import SHotelsGetAll, SListString
-from app.hotels.dao import HotelDAO
 from app.exceptions import HotelCannotBeAdded
+from app.hotels.dao import HotelDAO
+from app.hotels.schemas import SHotelsGetAll, SListString
+
+from fastapi import APIRouter
 
 
 router = APIRouter(
