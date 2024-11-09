@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Optional
 
 from fastapi import APIRouter
 
@@ -76,6 +77,26 @@ async def update_hotel(
 ) -> None:
 
     await HotelDAO.update_hotel(
+        hotel_id=hotel_id,
+        name=name,
+        location=location,
+        services=services,
+        rooms_quantity=rooms_quantity,
+        image_id=image_id,
+    )
+
+
+@router.put("/alternative_update/{hotel_id}")
+async def alternative_update_hotel(
+    hotel_id: int,
+    name: Optional[str] = None,
+    location: Optional[str] = None,
+    services: Optional[SListString] = None,
+    rooms_quantity: Optional[int] = None,
+    image_id: Optional[int] = None,
+) -> None:
+
+    await HotelDAO.alternative_update_hotel(
         hotel_id=hotel_id,
         name=name,
         location=location,

@@ -1,6 +1,8 @@
 from datetime import date
+from typing import Optional
 
 from sqlalchemy import select, and_, func, insert, delete, update
+from fastapi.responses import JSONResponse
 
 from app.bookings.models import Bookings
 from app.exceptions import HotelDoesNotExist
@@ -81,7 +83,6 @@ class HotelDAO(BaseDAO):
 
     # проверить группировки в find_all
 
-    # в add добавить проверку на то, что отель ещё не существует по адресу
     # написать, что add ретёрнит
     @classmethod
     async def add_hotel(
@@ -151,3 +152,75 @@ class HotelDAO(BaseDAO):
                 await session.commit()
         else:
             raise HotelDoesNotExist
+
+    @classmethod
+    async def alternative_update_hotel(
+        cls,
+        hotel_id: int,
+        name: Optional[str] = None,
+        location: Optional[str] = None,
+        services: Optional[SListString] = None,
+        rooms_quantity: Optional[int] = None,
+        image_id: Optional[int] = None,
+    ) -> JSONResponse:
+
+        async with async_session_maker() as session:
+            hotel = await cls.find_by_id(hotel_id)
+
+            if hotel:
+                if name is not None:
+                    update_name = (
+                        update(Hotels)
+                        .where(Hotels.id == hotel_id)
+                        .values(name=name)
+                    )
+                    await session.execute(update_name)
+
+                if location is not None:
+                    update_location = (
+                        update(Hotels)
+                        .where(Hotels.id == hotel_id)
+                        .values(location=location)
+                    )
+                    await session.execute(update_location)
+
+                if services is not None:
+                    update_services = (
+                        update(Hotels)
+                        .where(Hotels.id == hotel_id)
+                        .values(services=services.items)
+                    )
+                    await session.execute(update_services)
+
+                if rooms_quantity is not None:
+                    update_rooms_quantity = (
+                        update(Hotels)
+                        .where(Hotels.id == hotel_id)
+                        .values(rooms_quantity=rooms_quantity)
+                    )
+                    await session.execute(update_rooms_quantity)
+
+                if image_id is not None:
+                    update_image_id = (
+                        update(Hotels)
+                        .where(Hotels.id == hotel_id)
+                        .values(image_id=image_id)
+                    )
+                    await session.execute(update_image_id)
+
+                await session.commit()
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "status_code": 200,
+                        "message": "success",
+                    },
+                )
+
+            else:
+                raise HotelDoesNotExist
+
+
+# не возвращается message, если изменения проходят успешно
+# message должен возврашать не дао, а роутер
+# перемести эту логику туда
