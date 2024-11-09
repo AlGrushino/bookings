@@ -155,7 +155,7 @@ class HotelDAO(BaseDAO):
     # убрать обработку ошибок в роутер, возвращать скаляр
 
     @classmethod
-    async def alternative_update_hotel(
+    async def update_hotel_partly(
         cls,
         hotel_id: int,
         name: Optional[str] = None,
@@ -220,6 +220,3 @@ class HotelDAO(BaseDAO):
                 await session.commit()
                 if flag_changes:
                     return hotel
-
-
-# поменять роутер на патч

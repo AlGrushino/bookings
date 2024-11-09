@@ -86,17 +86,17 @@ async def update_hotel(
     )
 
 
-@router.put("/alternative_update/{hotel_id}")
-async def alternative_update_hotel(
+@router.patch("/update_partly/{hotel_id}")
+async def update_hotel_partly(
     hotel_id: int,
     name: Optional[str] = None,
     location: Optional[str] = None,
     services: Optional[SListString] = None,
     rooms_quantity: Optional[int] = None,
     image_id: Optional[int] = None,
-) -> None:
+) -> JSONResponse:
 
-    hotel = await HotelDAO.alternative_update_hotel(
+    hotel = await HotelDAO.update_hotel_partly(
         hotel_id=hotel_id,
         name=name,
         location=location,
