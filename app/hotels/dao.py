@@ -5,13 +5,14 @@ from sqlalchemy import and_, delete, func, insert, select, update
 
 from app.bookings.models import Bookings
 from app.dao.base import BaseDAO
-from app.database import async_session_maker, engine
+from app.database import async_session_maker
 from app.exceptions import HotelDoesNotExist
 from app.hotels.models import Hotels
 from app.hotels.rooms.models import Rooms
 from app.hotels.schemas import SListString
 
 
+# поменять во всех методах проверку отеля на hotel_exists
 class HotelDAO(BaseDAO):
     model = Hotels
 
@@ -220,3 +221,21 @@ class HotelDAO(BaseDAO):
                 await session.commit()
                 if flag_changes:
                     return hotel
+
+    # подумать, как бы сделать тут всё одним циклом
+    # мб стоит записать аргументы просто как **kwargs
+
+    @classmethod
+    async def hotel_exists(
+        cls,
+        hotel_id: int,
+    ) -> bool:
+
+        async with async_session_maker() as session:
+            check_existance = select(Hotels).where(Hotels.id == hotel_id)
+            exist = await session.execute(check_existance)
+            exist = exist.scalar()
+
+            if exist:
+                return True
+            return False

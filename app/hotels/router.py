@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional
+from typing import List, Optional
 
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
@@ -13,13 +13,15 @@ router = APIRouter(
     tags=["Отели"],
 )
 
+# добавить респонзы и аннтоации к каждой функции
+
 
 @router.get("/{location}")
 async def get_hotels(
     location: str,
     date_from: date,
     date_to: date,
-) -> list[SHotelsGetAll]:
+) -> List[SHotelsGetAll]:
 
     return await HotelDAO.find_all(
         location=location,
@@ -40,7 +42,7 @@ async def add_hotel(
     services: SListString,
     rooms_quantity: int,
     image_id: int,
-) -> None:
+) -> JSONResponse:
 
     hotel = await HotelDAO.add_hotel(
         name=name,
@@ -50,8 +52,15 @@ async def add_hotel(
         image_id=image_id,
     )
 
-    if not hotel:
-        raise HotelCannotBeAdded
+    if hotel:
+        return JSONResponse(
+            status_code=200,
+            content={
+                "status_code": 200,
+                "message": "Отель успешно добавлен",
+            },
+        )
+    raise HotelCannotBeAdded
 
 
 # пользователь должен быть авторизован и админом
@@ -114,3 +123,19 @@ async def update_hotel_partly(
             },
         )
     raise HotelDoesNotExist
+
+# пользователь должен быть авторизован и админом
+@router.get("/hotel_exists/{hotel_id}")
+async def hotel_exists(hotel_id: int) -> JSONResponse:
+    exist = await HotelDAO.hotel_exists(hotel_id=hotel_id)
+
+    if exist:
+        return JSONResponse(
+            status_code=200,
+            content={"status_code": 200, "message": "Отель существует"},
+        )
+
+    return JSONResponse(
+        status_code=200,
+        content={"status_code": 200, "message": "Отель не существует"},
+    )
