@@ -110,7 +110,7 @@ class HotelDAO(BaseDAO):
             await session.commit()
             return new_hotel.scalar()
 
-    # проверять, что такой отель вообще сущетсвует
+    # проверять, что такой отель вообще сущетсвует, эту проверку лучше делать в роутере
     @classmethod
     async def delete_hotel(
         cls,

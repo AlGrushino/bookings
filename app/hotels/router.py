@@ -64,6 +64,7 @@ async def add_hotel(
 
 
 # пользователь должен быть авторизован и админом
+# проверить, что отель существует
 @router.delete("/delete/{hotel_id}")
 async def delete_hotel(
     hotel_id: int,
@@ -124,6 +125,7 @@ async def update_hotel_partly(
         )
     raise HotelDoesNotExist
 
+
 # пользователь должен быть авторизован и админом
 @router.get("/hotel_exists/{hotel_id}")
 async def hotel_exists(hotel_id: int) -> JSONResponse:
@@ -132,7 +134,10 @@ async def hotel_exists(hotel_id: int) -> JSONResponse:
     if exist:
         return JSONResponse(
             status_code=200,
-            content={"status_code": 200, "message": "Отель существует"},
+            content={
+                "status_code": 200,
+                "message": "Отель существует",
+            },
         )
 
     return JSONResponse(

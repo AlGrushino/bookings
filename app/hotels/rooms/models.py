@@ -1,7 +1,7 @@
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
-from sqlalchemy import JSON, Column, ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import JSON, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
 

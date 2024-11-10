@@ -56,3 +56,8 @@ class HotelDoesNotExist(BookingException):
 class RoomCannotBeAdded(BookingException):
     status_code = status.HTTP_409_CONFLICT
     detail = "Комната не может быть добавлена"
+
+
+class RoomDoesNotExist(BookingException):
+    status_code = status.HTTP_409_CONFLICT
+    detail = "Комната не существует"
