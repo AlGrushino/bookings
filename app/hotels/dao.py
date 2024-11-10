@@ -165,13 +165,14 @@ class HotelDAO(BaseDAO):
         rooms_quantity: Optional[int] = None,
         image_id: Optional[int] = None,
     ) -> Optional[int]:
+        # сделать флаг bool
         flag_changes: int = 0
 
         async with async_session_maker() as session:
             get_hotel = select(Hotels).where(Hotels.id == hotel_id)
             hotel = await session.execute(get_hotel)
             hotel = hotel.scalar()
-
+            # поменять на if name
             if hotel:
                 if name is not None:
                     update_name = (
@@ -218,7 +219,7 @@ class HotelDAO(BaseDAO):
                     await session.execute(update_image_id)
                     flag_changes = 1
 
-                await session.commit()
+                await session.commit()  # перенести session.commit в if
                 if flag_changes:
                     return hotel
 

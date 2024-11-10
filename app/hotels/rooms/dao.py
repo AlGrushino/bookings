@@ -95,7 +95,88 @@ class RoomsDAO(BaseDAO):
             return False
 
     @classmethod
-    async def update_room_partly(): ...
+    async def update_room_partly(
+        cls,
+        room_id: int = None,
+        hotel_id: int = None,
+        name: str = None,
+        description: Optional[str] = None,
+        price: int = None,
+        services: SListString = None,
+        quantity: int = None,
+        image_id: int = None,
+    ) -> bool:
+        flag_changes = False
+
+        async with async_session_maker() as session:
+            if await cls.room_exists(room_id=room_id):
+                if hotel_id:
+                    update_hotel_id = (
+                        update(Rooms)
+                        .where(Rooms.id == room_id)
+                        .values(hotel_id=hotel_id)
+                    )
+                    await session.execute(update_hotel_id)
+                    flag_changes = True
+
+                if name:
+                    update_name = (
+                        update(Rooms)
+                        .where(Rooms.id == room_id)
+                        .values(name=name)
+                    )
+                    await session.execute(update_name)
+                    flag_changes = True
+
+                if description:
+                    update_description = (
+                        update(Rooms)
+                        .where(Rooms.id == room_id)
+                        .values(description=description)
+                    )
+                    await session.execute(update_description)
+                    flag_changes = True
+
+                if price:
+                    update_price = (
+                        update(Rooms)
+                        .where(Rooms.id == room_id)
+                        .values(price=price)
+                    )
+                    await session.execute(update_price)
+                    flag_changes = True
+
+                if services:
+                    update_services = (
+                        update(Rooms)
+                        .where(Rooms.id == room_id)
+                        .values(services=services.items)
+                    )
+                    await session.execute(update_services)
+                    flag_changes = True
+
+                if quantity:
+                    update_quantity = (
+                        update(Rooms)
+                        .where(Rooms.id == room_id)
+                        .values(quantity=quantity)
+                    )
+                    await session.execute(update_quantity)
+                    flag_changes = True
+
+                if image_id:
+                    update_image_id = (
+                        update(Rooms)
+                        .where(Rooms.id == room_id)
+                        .values(image_id=image_id)
+                    )
+                    await session.execute(update_image_id)
+                    flag_changes = True
+
+                if flag_changes:
+                    await session.commit()
+                    return True
+        return False
 
     @classmethod
     async def room_exists(

@@ -107,4 +107,37 @@ async def update_room(
 
 
 @router.patch("/update_room_partly/{room_id}")
-async def update_room_partly() -> JSONResponse: ...
+async def update_room_partly(
+    room_id: int,
+    hotel_id: Optional[int] = None,
+    name: Optional[str] = None,
+    description: Optional[str] = None,
+    price: Optional[int] = None,
+    services: Optional[SListString] = None,
+    quantity: Optional[int] = None,
+    image_id: Optional[int] = None,
+) -> JSONResponse:
+
+    room = await RoomsDAO.update_room_partly(
+        room_id=room_id,
+        hotel_id=hotel_id,
+        name=name,
+        description=description,
+        price=price,
+        services=services,
+        quantity=quantity,
+        image_id=image_id,
+    )
+
+    if room:
+        return JSONResponse(
+            status_code=200,
+            content={
+                "status_code": 200,
+                "message": "Информация о комнате успешно обновлена",
+            },
+        )
+    raise RoomDoesNotExist
+
+
+# написать функцию, которая будет ретёрнить jsonresponse
