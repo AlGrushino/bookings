@@ -26,7 +26,7 @@ class HotelDAO(BaseDAO):
         async with async_session_maker() as session:
             booked_rooms = (
                 select(
-                    Bookings.id,
+                    Bookings.id,  # нужен ли здесь Bookings.id
                     Bookings.room_id,
                 )
                 .where(
@@ -41,7 +41,7 @@ class HotelDAO(BaseDAO):
             get_rooms_left = (
                 select(
                     Rooms.hotel_id,
-                    Hotels.id,  # Hotel.id
+                    Hotels.id,
                     Hotels.name,
                     Hotels.location,
                     Rooms.services,
@@ -67,7 +67,7 @@ class HotelDAO(BaseDAO):
                 .having(
                     and_(
                         Hotels.location.contains(location),
-                        Rooms.quantity - func.count(booked_rooms.c.room_id),
+                        Rooms.quantity - func.count(booked_rooms.c.room_id),  # зачем это тут
                     )
                 )
             )

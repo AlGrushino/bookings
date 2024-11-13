@@ -1,19 +1,85 @@
+from datetime import date
 from typing import List, Optional
 
 from sqlalchemy import and_, delete, func, insert, select, update
 
+from app.bookings.models import Bookings
 from app.dao.base import BaseDAO
 from app.database import async_session_maker
+from app.hotels.models import Hotels
 from app.hotels.rooms.models import Rooms
 from app.hotels.schemas import SListString
 
 
 # поменять везде проверку существования на функцию класса
+# поменять Rooms на Room
 class RoomsDAO(BaseDAO):
     model = Rooms
 
     @classmethod
-    async def find_all(): ...
+    async def find_all(
+        cls,
+        hotel_id: int,
+        date_from: date,
+        date_to: date,
+    ):
+        async with async_session_maker() as session:
+            booked_rooms = (
+                select(
+                    # Bookings.id,
+                    Bookings.room_id,
+                )
+                .where(
+                    and_(
+                        Bookings.date_from <= date_to,
+                        Bookings.date_to >= date_from,
+                    )
+                )
+                .cte("booked_rooms")
+            )
+
+            get_rooms_left = (
+                select(
+                    Rooms.room_id,
+                    Rooms.hotel_id,
+                    # Hotels.id,
+                    Rooms.name,
+                    Rooms.description,
+                    Rooms.services,
+                    Rooms.price,
+                    Rooms.quantity,
+                    Rooms.image_id,
+                    (
+                        Rooms.quantity - func.count(booked_rooms.c.room_id)
+                    ).label("rooms_left"),
+                    # добавить сюда стоимость date_to - date_from
+                )
+                .select_from(Rooms)
+                .join(
+                    booked_rooms,
+                    booked_rooms.c.room_id == Rooms.id,
+                    isouter=True,
+                )
+                .join(Hotels, hotel_id == Rooms.hotel_id, isouter=True)
+                .group_by(
+                    Rooms.hotel_id,
+                    Rooms.services,
+                    Rooms.quantity,
+                    Rooms.image_id,
+                    Rooms.name,
+                    Rooms.description,
+                    Rooms.price,  # потом убрать его отсюда
+                )
+                .having(
+                    and_(
+                        Rooms.hotel_id == hotel_id,
+                        Rooms.quantity - func.count(booked_rooms.c.room_id),
+                    )
+                )
+            )
+
+            rooms_left = await session.execute(get_rooms_left)
+            return rooms_left.mappings().all()
 
     # проверить, что add_room возвращает int
     # проверить количество комнат
